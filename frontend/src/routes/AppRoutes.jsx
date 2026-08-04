@@ -9,6 +9,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { DashboardPage } from '../pages/Dashboard/DashboardPage';
+import { RepositoriesPage } from '../pages/Repositories/RepositoriesPage';
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -20,6 +21,7 @@ export const AppRoutes = () => {
       {/* Protected Routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<DashboardLayout><DashboardPage /></DashboardLayout>} />
+        <Route path="/repositories" element={<DashboardLayout><RepositoriesPage /></DashboardLayout>} />
         {/* Add more protected routes here */}
       </Route>
       

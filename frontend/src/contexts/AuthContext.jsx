@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: user, isLoading, error } = useQuery({
+  const { data: user, isLoading, isFetching, error } = useQuery({
     queryKey: ['user'],
     queryFn: authService.getMe,
     enabled: !!token,
@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated: !!user, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading: isLoading || isFetching, isAuthenticated: !!user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

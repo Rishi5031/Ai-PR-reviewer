@@ -1,0 +1,77 @@
+from typing import List
+# pyrefly: ignore [missing-import]
+from fastapi import APIRouter, Depends, HTTPException, status
+# pyrefly: ignore [missing-import]
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.deps import get_db, get_current_user
+from app.models.user import User
+from app.schemas.github import (
+    GitHubConnectRequest,
+    GitHubStatusResponse,
+    GitHubRepositoryBase,
+    GitHubRepositoryDetails,
+    GitHubLanguageStats
+)
+from app.services.github_service import GitHubService
+
+router = APIRouter()
+
+@router.post("/connect", response_model=GitHubStatusResponse)
+async def connect_github(
+    request: GitHubConnectRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    return await service.connect_account(current_user.id, request.token)
+
+@router.get("/status", response_model=GitHubStatusResponse)
+async def get_github_status(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    return await service.get_status(current_user.id)
+
+@router.delete("/disconnect", status_code=status.HTTP_204_NO_CONTENT)
+async def disconnect_github(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    success = await service.disconnect_account(current_user.id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="GitHub account not connected."
+        )
+    return None
+
+@router.get("/repositories", response_model=List[GitHubRepositoryBase])
+async def get_github_repositories(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    return await service.fetch_repositories(current_user.id)
+
+@router.get("/repositories/{owner}/{repo}", response_model=GitHubRepositoryDetails)
+async def get_github_repository_details(
+    owner: str,
+    repo: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    return await service.fetch_repository_details(current_user.id, owner, repo)
+
+@router.get("/repositories/{owner}/{repo}/languages", response_model=GitHubLanguageStats)
+async def get_github_repository_languages(
+    owner: str,
+    repo: str,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    return await service.fetch_repository_languages(current_user.id, owner, repo)

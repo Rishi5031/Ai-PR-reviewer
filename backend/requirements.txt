@@ -10,3 +10,5 @@ email-validator
 asyncpg
 python-dotenv
 google-auth
+cryptography
+httpx
