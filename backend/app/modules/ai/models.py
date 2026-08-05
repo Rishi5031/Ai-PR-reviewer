@@ -25,6 +25,8 @@ class AIReview(Base):
     # Store the actual full JSON from Gemini for caching/history
     review_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     
+    is_deleted: Mapped[bool] = mapped_column(default=False, nullable=False, server_default='false')
+    
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

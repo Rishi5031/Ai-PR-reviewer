@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FolderGit2, 
@@ -14,12 +14,34 @@ const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Repositories', href: '/repositories', icon: FolderGit2 },
   { name: 'Pull Requests', href: '/pull-requests', icon: GitPullRequest },
-  { name: 'AI Reviews', href: '/reviews', icon: Bot },
+  { name: 'AI Reviews', href: '/ai-reviews', icon: Bot },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export const Sidebar = ({ className }) => {
+  const location = useLocation();
+
+  const isItemActive = (item) => {
+    const path = location.pathname;
+    
+    if (item.href === '/') {
+      return path === '/';
+    }
+    
+    // Highlight AI Reviews tab if we are on the dashboard or viewing an individual AI review
+    if (item.name === 'AI Reviews') {
+      return path.startsWith('/ai-reviews') || path.endsWith('/ai-review');
+    }
+    
+    // Highlight Repositories only if it's not an AI review
+    if (item.name === 'Repositories') {
+      return path.startsWith('/repositories') && !path.endsWith('/ai-review');
+    }
+
+    return path.startsWith(item.href);
+  };
+
   return (
     <div className={cn("flex h-full w-64 flex-col border-r border-border bg-card", className)}>
       <div className="flex h-16 shrink-0 items-center px-6">
@@ -33,33 +55,30 @@ export const Sidebar = ({ className }) => {
       
       <div className="flex flex-1 flex-col overflow-y-auto px-4 py-6">
         <nav className="flex-1 space-y-1.5">
-          {navigation.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.href}
-              className={({ isActive }) =>
-                cn(
+          {navigation.map((item) => {
+            const active = isItemActive(item);
+            return (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={cn(
                   "group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                  isActive
+                  active
                     ? "bg-primary text-primary-foreground"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  <item.icon
-                    className={cn(
-                      "mr-3 h-5 w-5 shrink-0 transition-colors",
-                      isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
-                    )}
-                    aria-hidden="true"
-                  />
-                  {item.name}
-                </>
-              )}
-            </NavLink>
-          ))}
+                )}
+              >
+                <item.icon
+                  className={cn(
+                    "mr-3 h-5 w-5 shrink-0 transition-colors",
+                    active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
+                  )}
+                  aria-hidden="true"
+                />
+                {item.name}
+              </NavLink>
+            );
+          })}
         </nav>
       </div>
       

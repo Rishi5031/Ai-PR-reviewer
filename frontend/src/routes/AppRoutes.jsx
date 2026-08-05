@@ -13,6 +13,8 @@ import { RepositoriesPage } from '../pages/Repositories/RepositoriesPage';
 import { RepositoryDetailsPage } from '../pages/Repositories/RepositoryDetailsPage';
 import { PullRequestDetailsPage } from '../pages/PullRequests/PullRequestDetailsPage';
 import { AIReviewPage } from '../pages/PullRequests/AIReviewPage';
+import { AIReviewsPage } from '../pages/AIReviews/AIReviewsPage';
+
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -28,6 +30,7 @@ export const AppRoutes = () => {
         <Route path="/repositories/:owner/:repo" element={<DashboardLayout><RepositoryDetailsPage /></DashboardLayout>} />
         <Route path="/repositories/:owner/:repo/pulls/:pullNumber" element={<DashboardLayout><PullRequestDetailsPage /></DashboardLayout>} />
         <Route path="/repositories/:owner/:repo/pulls/:pullNumber/ai-review" element={<DashboardLayout><AIReviewPage /></DashboardLayout>} />
+        <Route path="/ai-reviews" element={<DashboardLayout><AIReviewsPage /></DashboardLayout>} />
         {/* Add more protected routes here */}
       </Route>
       
