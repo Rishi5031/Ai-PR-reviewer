@@ -10,7 +10,11 @@ import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { DashboardPage } from '../pages/Dashboard/DashboardPage';
 import { RepositoriesPage } from '../pages/Repositories/RepositoriesPage';
-import { RepositoryDetailsPage } from '../pages/Repositories/RepositoryDetailsPage';
+import { RepositoryWorkspace } from '../pages/Repositories/RepositoryWorkspace';
+import { HealthTab } from '../components/repository/tabs/HealthTab';
+import { PullRequestsTab } from '../components/repository/tabs/PullRequestsTab';
+import { RepositoryReviewsTab } from '../components/repository/tabs/RepositoryReviewsTab';
+import { RepositorySettingsTab } from '../components/repository/tabs/RepositorySettingsTab';
 import { PullRequestDetailsPage } from '../pages/PullRequests/PullRequestDetailsPage';
 import { AIReviewPage } from '../pages/PullRequests/AIReviewPage';
 import { AIReviewsPage } from '../pages/AIReviews/AIReviewsPage';
@@ -28,7 +32,13 @@ export const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<DashboardLayout><DashboardPage /></DashboardLayout>} />
         <Route path="/repositories" element={<DashboardLayout><RepositoriesPage /></DashboardLayout>} />
-        <Route path="/repositories/:owner/:repo" element={<DashboardLayout><RepositoryDetailsPage /></DashboardLayout>} />
+        <Route path="/repositories/:owner/:repo" element={<DashboardLayout><RepositoryWorkspace /></DashboardLayout>}>
+          <Route index element={<Navigate to="health" replace />} />
+          <Route path="health" element={<HealthTab />} />
+          <Route path="pulls" element={<PullRequestsTab />} />
+          <Route path="reviews" element={<RepositoryReviewsTab />} />
+          <Route path="settings" element={<RepositorySettingsTab />} />
+        </Route>
         <Route path="/repositories/:owner/:repo/pulls/:pullNumber" element={<DashboardLayout><PullRequestDetailsPage /></DashboardLayout>} />
         <Route path="/repositories/:owner/:repo/pulls/:pullNumber/ai-review" element={<DashboardLayout><AIReviewPage /></DashboardLayout>} />
         <Route path="/ai-reviews" element={<DashboardLayout><AIReviewsPage /></DashboardLayout>} />

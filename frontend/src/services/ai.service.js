@@ -14,6 +14,10 @@ const getAnalyticsBaseUrl = () => {
   return api.defaults.baseURL.replace('/api/v1', '/api/analytics');
 };
 
+const getRepositoryBaseUrl = () => {
+  return api.defaults.baseURL.replace('/api/v1', '/api/repositories');
+};
+
 export const aiService = {
   /**
    * Triggers an AI review for a given PR.
@@ -95,6 +99,16 @@ export const aiService = {
     const response = await api.get('/dashboard', {
       baseURL: getAnalyticsBaseUrl(),
       params
+    });
+    return response.data;
+  },
+
+  /**
+   * Repository Health Endpoints
+   */
+  getRepositoryHealth: async (owner, repo) => {
+    const response = await api.get(`/${owner}/${repo}/health`, {
+      baseURL: getRepositoryBaseUrl()
     });
     return response.data;
   }

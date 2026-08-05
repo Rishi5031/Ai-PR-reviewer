@@ -13,7 +13,6 @@ import { cn } from '../../lib/utils';
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Repositories', href: '/repositories', icon: FolderGit2 },
-  { name: 'Pull Requests', href: '/pull-requests', icon: GitPullRequest },
   { name: 'AI Reviews', href: '/ai-reviews', icon: Bot },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
