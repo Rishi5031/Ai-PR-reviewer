@@ -10,6 +10,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { DashboardLayout } from '../layouts/DashboardLayout';
 import { DashboardPage } from '../pages/Dashboard/DashboardPage';
 import { RepositoriesPage } from '../pages/Repositories/RepositoriesPage';
+import { RepositoryDetailsPage } from '../pages/Repositories/RepositoryDetailsPage';
+import { PullRequestDetailsPage } from '../pages/PullRequests/PullRequestDetailsPage';
+import { AIReviewPage } from '../pages/PullRequests/AIReviewPage';
 export const AppRoutes = () => {
   return (
     <Routes>
@@ -22,6 +25,9 @@ export const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<DashboardLayout><DashboardPage /></DashboardLayout>} />
         <Route path="/repositories" element={<DashboardLayout><RepositoriesPage /></DashboardLayout>} />
+        <Route path="/repositories/:owner/:repo" element={<DashboardLayout><RepositoryDetailsPage /></DashboardLayout>} />
+        <Route path="/repositories/:owner/:repo/pulls/:pullNumber" element={<DashboardLayout><PullRequestDetailsPage /></DashboardLayout>} />
+        <Route path="/repositories/:owner/:repo/pulls/:pullNumber/ai-review" element={<DashboardLayout><AIReviewPage /></DashboardLayout>} />
         {/* Add more protected routes here */}
       </Route>
       

@@ -30,3 +30,39 @@ class GitHubRepositoryDetails(GitHubRepositoryBase):
 
 class GitHubLanguageStats(BaseModel):
     languages: Dict[str, int]
+
+class GitHubPullRequestSummary(BaseModel):
+    pull_number: int
+    title: str
+    state: str
+    author: str
+    created_at: str
+    updated_at: str
+    html_url: str
+
+class GitHubPullRequestDetails(GitHubPullRequestSummary):
+    description: Optional[str] = None
+    base_branch: str
+    head_branch: str
+    merge_status: bool
+    review_comments_count: int
+    additions: int
+    deletions: int
+    changed_files_count: int
+    commits_count: int
+
+class GitHubPullRequestFile(BaseModel):
+    filename: str
+    status: str
+    additions: int
+    deletions: int
+    changes: int
+    patch: Optional[str] = None
+    raw_url: str
+    blob_url: str
+
+class GitHubPullRequestCommit(BaseModel):
+    sha: str
+    message: str
+    author_name: str
+    date: str

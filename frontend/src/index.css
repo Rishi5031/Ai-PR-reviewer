@@ -111,3 +111,25 @@
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
+
+@layer utilities {
+  .text-success { color: hsl(var(--success)); }
+  .bg-success { background-color: hsl(var(--success)); }
+  .border-success\/20 { border-color: hsl(var(--success) / 0.2); }
+  .bg-success\/10 { background-color: hsl(var(--success) / 0.1); }
+
+  .text-warning { color: hsl(var(--warning)); }
+  .bg-warning { background-color: hsl(var(--warning)); }
+  .border-warning\/20 { border-color: hsl(var(--warning) / 0.2); }
+  .bg-warning\/10 { background-color: hsl(var(--warning) / 0.1); }
+
+  .text-error { color: hsl(var(--error)); }
+  .bg-error { background-color: hsl(var(--error)); }
+  .border-error\/20 { border-color: hsl(var(--error) / 0.2); }
+  .bg-error\/10 { background-color: hsl(var(--error) / 0.1); }
+
+  .text-info { color: hsl(var(--info)); }
+  .bg-info { background-color: hsl(var(--info)); }
+  .border-info\/20 { border-color: hsl(var(--info) / 0.2); }
+  .bg-info\/10 { background-color: hsl(var(--info) / 0.1); }
+}

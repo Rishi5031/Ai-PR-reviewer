@@ -1,5 +1,6 @@
 import React from 'react';
 import { Star, GitFork, ExternalLink, ShieldAlert, Circle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Badge } from '../ui/badge';
 import { cn } from '../../lib/utils';
 
@@ -25,7 +26,10 @@ export const RepositoryCard = ({ repo }) => {
   });
 
   return (
-    <div className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30">
+    <Link 
+      to={`/repositories/${repo.full_name}`}
+      className="group flex flex-col justify-between rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/30"
+    >
       <div>
         <div className="flex items-start justify-between mb-2">
           <div className="flex items-center gap-2 truncate pr-4">
@@ -67,6 +71,6 @@ export const RepositoryCard = ({ repo }) => {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };

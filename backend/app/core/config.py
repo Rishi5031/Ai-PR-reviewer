@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     # DB
     DATABASE_URL: str
 
+    # AI
+    GEMINI_API_KEY: str | None = None
+    GEMINI_MODEL: str = "gemini-3.5-flash"
+
     # JWT
     JWT_SECRET_KEY: str
     JWT_REFRESH_SECRET_KEY: str

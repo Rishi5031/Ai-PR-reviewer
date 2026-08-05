@@ -11,7 +11,11 @@ from app.schemas.github import (
     GitHubStatusResponse,
     GitHubRepositoryBase,
     GitHubRepositoryDetails,
-    GitHubLanguageStats
+    GitHubLanguageStats,
+    GitHubPullRequestSummary,
+    GitHubPullRequestDetails,
+    GitHubPullRequestFile,
+    GitHubPullRequestCommit
 )
 from app.services.github_service import GitHubService
 
@@ -75,3 +79,49 @@ async def get_github_repository_languages(
 ):
     service = GitHubService(db)
     return await service.fetch_repository_languages(current_user.id, owner, repo)
+
+@router.get("/repositories/{owner}/{repo}/pulls", response_model=List[GitHubPullRequestSummary])
+async def get_github_pull_requests(
+    owner: str,
+    repo: str,
+    state: str = "open",
+    page: int = 1,
+    per_page: int = 30,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    return await service.get_pull_requests(current_user.id, owner, repo, state, page, per_page)
+
+@router.get("/repositories/{owner}/{repo}/pulls/{pull_number}", response_model=GitHubPullRequestDetails)
+async def get_github_pull_request_details(
+    owner: str,
+    repo: str,
+    pull_number: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    return await service.get_pull_request_details(current_user.id, owner, repo, pull_number)
+
+@router.get("/repositories/{owner}/{repo}/pulls/{pull_number}/files", response_model=List[GitHubPullRequestFile])
+async def get_github_pull_request_files(
+    owner: str,
+    repo: str,
+    pull_number: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    return await service.get_pull_request_files(current_user.id, owner, repo, pull_number)
+
+@router.get("/repositories/{owner}/{repo}/pulls/{pull_number}/commits", response_model=List[GitHubPullRequestCommit])
+async def get_github_pull_request_commits(
+    owner: str,
+    repo: str,
+    pull_number: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    return await service.get_pull_request_commits(current_user.id, owner, repo, pull_number)

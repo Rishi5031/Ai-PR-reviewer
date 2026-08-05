@@ -57,7 +57,6 @@ export const SignUpForm = () => {
     onSuccess: (data) => {
       login(data.access_token, data.refresh_token);
       toast.success("Successfully signed in with Google!");
-      navigate('/');
     },
     onError: (error) => {
       toast.error(error.response?.data?.detail || "Google sign in failed");

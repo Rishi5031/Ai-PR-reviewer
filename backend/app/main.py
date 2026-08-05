@@ -21,7 +21,9 @@ if settings.cors_origins:
         allow_headers=["*"],
     )
 
+from app.modules.ai import ai_controller
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(ai_controller.router, prefix="/api/ai", tags=["ai"])
 
 @app.get("/health", tags=["health"])
 def health_check():

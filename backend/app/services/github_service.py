@@ -1,12 +1,24 @@
 import uuid
+# pyrefly: ignore [missing-import]
 import httpx
 from typing import Dict, Any, List
+# pyrefly: ignore [missing-import]
 from fastapi import HTTPException, status
+# pyrefly: ignore [missing-import]
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories.github_repo import GitHubRepository
 from app.utils.encryption import encrypt_token, decrypt_token
-from app.schemas.github import GitHubStatusResponse, GitHubRepositoryDetails, GitHubRepositoryBase, GitHubLanguageStats
+from app.schemas.github import (
+    GitHubStatusResponse, 
+    GitHubRepositoryDetails, 
+    GitHubRepositoryBase, 
+    GitHubLanguageStats,
+    GitHubPullRequestSummary,
+    GitHubPullRequestDetails,
+    GitHubPullRequestFile,
+    GitHubPullRequestCommit
+)
 
 GITHUB_API_BASE = "https://api.github.com"
 
@@ -142,3 +154,79 @@ class GitHubService:
         data = await self._make_github_request("GET", f"{GITHUB_API_BASE}/repos/{owner}/{repo}/languages", token)
         
         return GitHubLanguageStats(languages=data)
+
+    async def get_pull_requests(self, user_id: uuid.UUID, owner: str, repo: str, state: str = "open", page: int = 1, per_page: int = 30) -> List[GitHubPullRequestSummary]:
+        token = await self.get_decrypted_token(user_id)
+        url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}/pulls?state={state}&page={page}&per_page={per_page}"
+        data = await self._make_github_request("GET", url, token)
+        
+        return [
+            GitHubPullRequestSummary(
+                pull_number=pr["number"],
+                title=pr["title"],
+                state=pr["state"],
+                author=pr["user"]["login"],
+                created_at=pr["created_at"],
+                updated_at=pr["updated_at"],
+                html_url=pr["html_url"]
+            )
+            for pr in data
+        ]
+
+    async def get_pull_request_details(self, user_id: uuid.UUID, owner: str, repo: str, pull_number: int) -> GitHubPullRequestDetails:
+        token = await self.get_decrypted_token(user_id)
+        url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}/pulls/{pull_number}"
+        data = await self._make_github_request("GET", url, token)
+        
+        return GitHubPullRequestDetails(
+            pull_number=data["number"],
+            title=data["title"],
+            state=data["state"],
+            author=data["user"]["login"],
+            created_at=data["created_at"],
+            updated_at=data["updated_at"],
+            html_url=data["html_url"],
+            description=data.get("body"),
+            base_branch=data["base"]["ref"],
+            head_branch=data["head"]["ref"],
+            merge_status=data.get("merged", False),
+            review_comments_count=data.get("review_comments", 0),
+            additions=data.get("additions", 0),
+            deletions=data.get("deletions", 0),
+            changed_files_count=data.get("changed_files", 0),
+            commits_count=data.get("commits", 0)
+        )
+
+    async def get_pull_request_files(self, user_id: uuid.UUID, owner: str, repo: str, pull_number: int) -> List[GitHubPullRequestFile]:
+        token = await self.get_decrypted_token(user_id)
+        url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}/pulls/{pull_number}/files?per_page=100"
+        data = await self._make_github_request("GET", url, token)
+        
+        return [
+            GitHubPullRequestFile(
+                filename=f["filename"],
+                status=f["status"],
+                additions=f["additions"],
+                deletions=f["deletions"],
+                changes=f["changes"],
+                patch=f.get("patch"),
+                raw_url=f["raw_url"],
+                blob_url=f["blob_url"]
+            )
+            for f in data
+        ]
+
+    async def get_pull_request_commits(self, user_id: uuid.UUID, owner: str, repo: str, pull_number: int) -> List[GitHubPullRequestCommit]:
+        token = await self.get_decrypted_token(user_id)
+        url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}/pulls/{pull_number}/commits?per_page=100"
+        data = await self._make_github_request("GET", url, token)
+        
+        return [
+            GitHubPullRequestCommit(
+                sha=c["sha"],
+                message=c["commit"]["message"],
+                author_name=c["commit"]["author"]["name"],
+                date=c["commit"]["author"]["date"]
+            )
+            for c in data
+        ]

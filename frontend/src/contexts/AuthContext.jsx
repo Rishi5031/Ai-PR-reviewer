@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   const queryClient = useQueryClient();
 
   const { data: user, isLoading, isFetching, error } = useQuery({
-    queryKey: ['user'],
+    queryKey: ['user', token],
     queryFn: authService.getMe,
     enabled: !!token,
     retry: false,
@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('access_token', access_token);
     localStorage.setItem('refresh_token', refresh_token);
     setToken(access_token);
+    queryClient.invalidateQueries({ queryKey: ['user'] });
   };
 
   const logout = async () => {
@@ -32,7 +33,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     setToken(null);
-    queryClient.setQueryData(['user'], null);
+    queryClient.setQueryData(['user', null], null);
+    queryClient.clear();
   };
 
   useEffect(() => {

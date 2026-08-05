@@ -36,7 +36,6 @@ export const SignInForm = () => {
     onSuccess: (data) => {
       login(data.access_token, data.refresh_token);
       toast.success("Successfully signed in!");
-      navigate('/');
     },
     onError: (error) => {
       toast.error(error.response?.data?.detail || "An error occurred during sign in");
@@ -48,7 +47,6 @@ export const SignInForm = () => {
     onSuccess: (data) => {
       login(data.access_token, data.refresh_token);
       toast.success("Successfully signed in with Google!");
-      navigate('/');
     },
     onError: (error) => {
       toast.error(error.response?.data?.detail || "Google sign in failed");
