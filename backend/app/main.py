@@ -23,10 +23,12 @@ if settings.cors_origins:
 
 from app.modules.ai import ai_controller
 from app.modules.ai_reviews import review_dashboard_controller
+from app.modules.analytics import analytics_controller
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(ai_controller.router, prefix="/api/ai", tags=["ai"])
 app.include_router(review_dashboard_controller.router, prefix="/api/ai-reviews", tags=["ai_reviews"])
+app.include_router(analytics_controller.router, prefix="/api/analytics", tags=["analytics"])
 
 @app.get("/health", tags=["health"])
 def health_check():

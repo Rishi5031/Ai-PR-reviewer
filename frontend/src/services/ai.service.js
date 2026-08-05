@@ -10,6 +10,10 @@ const getAiReviewsBaseUrl = () => {
   return api.defaults.baseURL.replace('/api/v1', '/api/ai-reviews');
 };
 
+const getAnalyticsBaseUrl = () => {
+  return api.defaults.baseURL.replace('/api/v1', '/api/analytics');
+};
+
 export const aiService = {
   /**
    * Triggers an AI review for a given PR.
@@ -80,6 +84,17 @@ export const aiService = {
   deleteDashboardReview: async (reviewId) => {
     const response = await api.delete(`/${reviewId}`, {
       baseURL: getAiReviewsBaseUrl()
+    });
+    return response.data;
+  },
+
+  /**
+   * AI Analytics Endpoints
+   */
+  getAnalyticsDashboard: async (params) => {
+    const response = await api.get('/dashboard', {
+      baseURL: getAnalyticsBaseUrl(),
+      params
     });
     return response.data;
   }

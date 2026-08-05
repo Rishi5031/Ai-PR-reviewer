@@ -14,6 +14,7 @@ import { RepositoryDetailsPage } from '../pages/Repositories/RepositoryDetailsPa
 import { PullRequestDetailsPage } from '../pages/PullRequests/PullRequestDetailsPage';
 import { AIReviewPage } from '../pages/PullRequests/AIReviewPage';
 import { AIReviewsPage } from '../pages/AIReviews/AIReviewsPage';
+import { AnalyticsPage } from '../pages/Analytics/AnalyticsPage';
 
 export const AppRoutes = () => {
   return (
@@ -31,6 +32,7 @@ export const AppRoutes = () => {
         <Route path="/repositories/:owner/:repo/pulls/:pullNumber" element={<DashboardLayout><PullRequestDetailsPage /></DashboardLayout>} />
         <Route path="/repositories/:owner/:repo/pulls/:pullNumber/ai-review" element={<DashboardLayout><AIReviewPage /></DashboardLayout>} />
         <Route path="/ai-reviews" element={<DashboardLayout><AIReviewsPage /></DashboardLayout>} />
+        <Route path="/analytics" element={<DashboardLayout><AnalyticsPage /></DashboardLayout>} />
         {/* Add more protected routes here */}
       </Route>
       
