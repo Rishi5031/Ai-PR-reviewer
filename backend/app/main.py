@@ -33,6 +33,23 @@ async def lifespan(app: FastAPI):
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bio VARCHAR"))
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS timezone VARCHAR"))
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR DEFAULT 'email'"))
+        
+        # Create repository_settings table safely if it wasn't created by create_all
+        await conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS repository_settings (
+                id UUID PRIMARY KEY,
+                repository_id VARCHAR UNIQUE NOT NULL,
+                ai_model VARCHAR NOT NULL,
+                review_strictness VARCHAR NOT NULL,
+                ignore_files JSONB NOT NULL,
+                coverage_threshold INTEGER NOT NULL,
+                max_tokens INTEGER NOT NULL,
+                created_at TIMESTAMP WITH TIME ZONE,
+                updated_at TIMESTAMP WITH TIME ZONE
+            )
+        """))
+        await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_repository_settings_id ON repository_settings (id)"))
+        await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_repository_settings_repository_id ON repository_settings (repository_id)"))
     yield
 
 app = FastAPI(

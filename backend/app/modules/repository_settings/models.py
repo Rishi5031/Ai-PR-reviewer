@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base_class import Base
-
+ 
 class RepositorySettings(Base):
     __tablename__ = "repository_settings"
 
