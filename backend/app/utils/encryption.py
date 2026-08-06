@@ -3,11 +3,15 @@ import base64
 # pyrefly: ignore [missing-import]
 from cryptography.fernet import Fernet
 import logging
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 # Try to get the key from the environment
-_ENCRYPTION_KEY_STR = os.getenv("ENCRYPTION_KEY", "")
+_ENCRYPTION_KEY_STR = settings.ENCRYPTION_KEY
+
+print("KEY:", repr(_ENCRYPTION_KEY_STR))
+print("LENGTH:", len(_ENCRYPTION_KEY_STR))
 
 if not _ENCRYPTION_KEY_STR:
     logger.warning("ENCRYPTION_KEY environment variable is missing. Using a fallback key for development. DO NOT USE IN PRODUCTION.")

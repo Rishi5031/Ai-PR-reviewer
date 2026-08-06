@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # DB
     DATABASE_URL: str
 
+    #Encryption
+    ENCRYPTION_KEY: str
+
     # AI
     GEMINI_API_KEY: str | None = None
     GEMINI_MODEL: str = "gemini-3.5-flash"

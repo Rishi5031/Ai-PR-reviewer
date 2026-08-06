@@ -12,6 +12,10 @@ from app.models import Base
 
 # pyrefly: ignore [missing-import]
 from sqlalchemy import text
+# pyrefly: ignore [missing-import]
+from dotenv import load_dotenv
+
+load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
