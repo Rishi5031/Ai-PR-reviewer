@@ -33,23 +33,6 @@ async def lifespan(app: FastAPI):
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bio VARCHAR"))
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS timezone VARCHAR"))
         await conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_provider VARCHAR DEFAULT 'email'"))
-        
-        # Create repository_settings table safely if it wasn't created by create_all
-        await conn.execute(text("""
-            CREATE TABLE IF NOT EXISTS repository_settings (
-                id UUID PRIMARY KEY,
-                repository_id VARCHAR UNIQUE NOT NULL,
-                ai_model VARCHAR NOT NULL,
-                review_strictness VARCHAR NOT NULL,
-                ignore_files JSONB NOT NULL,
-                coverage_threshold INTEGER NOT NULL,
-                max_tokens INTEGER NOT NULL,
-                created_at TIMESTAMP WITH TIME ZONE,
-                updated_at TIMESTAMP WITH TIME ZONE
-            )
-        """))
-        await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_repository_settings_id ON repository_settings (id)"))
-        await conn.execute(text("CREATE INDEX IF NOT EXISTS ix_repository_settings_repository_id ON repository_settings (repository_id)"))
     yield
 
 app = FastAPI(
@@ -77,12 +60,12 @@ from app.modules.dashboard import dashboard_controller
 from app.modules.profile import profile_controller
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
-app.include_router(ai_controller.router, prefix=f"{settings.API_V1_STR}/ai", tags=["ai"])
-app.include_router(review_dashboard_controller.router, prefix=f"{settings.API_V1_STR}/ai-reviews", tags=["ai_reviews"])
-app.include_router(analytics_controller.router, prefix=f"{settings.API_V1_STR}/analytics", tags=["analytics"])
-app.include_router(repository_health_controller.router, prefix=f"{settings.API_V1_STR}/repositories", tags=["repository_health"])
-app.include_router(repository_settings_controller.router, prefix=f"{settings.API_V1_STR}/repositories", tags=["repository_settings"])
-app.include_router(dashboard_controller.router, prefix=f"{settings.API_V1_STR}/dashboard", tags=["dashboard"])
+app.include_router(ai_controller.router, prefix="/api/ai", tags=["ai"])
+app.include_router(review_dashboard_controller.router, prefix="/api/ai-reviews", tags=["ai_reviews"])
+app.include_router(analytics_controller.router, prefix="/api/analytics", tags=["analytics"])
+app.include_router(repository_health_controller.router, prefix="/api/repositories", tags=["repository_health"])
+app.include_router(repository_settings_controller.router, prefix="/api/repositories", tags=["repository_settings"])
+app.include_router(dashboard_controller.router, prefix="/api/dashboard", tags=["dashboard"])
 app.include_router(profile_controller.router, prefix=f"{settings.API_V1_STR}/profile", tags=["profile"])
 @app.get("/health", tags=["health"])
 def health_check():
