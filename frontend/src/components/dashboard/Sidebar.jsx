@@ -6,7 +6,8 @@ import {
   GitPullRequest, 
   Bot, 
   BarChart3, 
-  Settings 
+  Settings,
+  User 
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -15,6 +16,7 @@ const navigation = [
   { name: 'Repositories', href: '/repositories', icon: FolderGit2 },
   { name: 'AI Reviews', href: '/ai-reviews', icon: Bot },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Profile', href: '/profile', icon: User },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

@@ -26,7 +26,41 @@ class RepositoryHealthService:
         reviews = await self.repository.get_reviews_for_repository(user_id, owner, repo)
         
         if not reviews:
-            raise HTTPException(status_code=404, detail="No AI Reviews found for this repository. Generate reviews to calculate health.")
+            return RepositoryHealthResponse(
+                repository_information=RepositoryInfo(
+                    repository_name=repo,
+                    owner=owner,
+                    default_branch="main",
+                    repository_id=f"{owner}/{repo}"
+                ),
+                overall_health=OverallHealth(
+                    overall_health_score=0.0,
+                    health_status="Unknown",
+                    total_reviews=0,
+                    average_review_score=0.0
+                ),
+                analysis_coverage=AnalysisCoverage(
+                    reviewed_pull_requests=0,
+                    total_pull_requests=0,
+                    coverage_percentage=0.0
+                ),
+                confidence_level=ConfidenceLevel(
+                    confidence="Low",
+                    confidence_percentage=0.0
+                ),
+                last_updated=datetime.now(timezone.utc),
+                most_common_findings=[],
+                strengths=[],
+                weaknesses=[],
+                repository_executive_summary=RepositoryExecutiveSummary(
+                    overall_health="Unknown",
+                    summary="No AI Reviews found for this repository. Generate reviews to calculate health.",
+                    strengths=[],
+                    weaknesses=[],
+                    recommended_next_step="Generate your first AI review to begin tracking repository health."
+                ),
+                health_disclaimer="This Repository Health score is calculated only from Pull Requests that have been reviewed by CodeGuardian AI."
+            )
 
         # Data collection
         total_reviews = len(reviews)

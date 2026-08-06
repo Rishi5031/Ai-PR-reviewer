@@ -22,6 +22,7 @@ import { AnalyticsPage } from '../pages/Analytics/AnalyticsPage';
 import { GitHubConnectionPage } from '../pages/GitHub/GitHubConnectionPage';
 import { OAuthSuccessPage } from '../pages/GitHub/OAuthSuccessPage';
 import { OAuthErrorPage } from '../pages/GitHub/OAuthErrorPage';
+import { ProfilePage } from '../pages/Profile/ProfilePage';
 
 export const AppRoutes = () => {
   return (
@@ -46,6 +47,7 @@ export const AppRoutes = () => {
         <Route path="/repositories/:owner/:repo/pulls/:pullNumber/ai-review" element={<DashboardLayout><AIReviewPage /></DashboardLayout>} />
         <Route path="/ai-reviews" element={<DashboardLayout><AIReviewsPage /></DashboardLayout>} />
         <Route path="/analytics" element={<DashboardLayout><AnalyticsPage /></DashboardLayout>} />
+        <Route path="/profile" element={<DashboardLayout><ProfilePage /></DashboardLayout>} />
         <Route path="/github/connect" element={<DashboardLayout><GitHubConnectionPage /></DashboardLayout>} />
         <Route path="/github/success" element={<DashboardLayout><OAuthSuccessPage /></DashboardLayout>} />
         <Route path="/github/error" element={<DashboardLayout><OAuthErrorPage /></DashboardLayout>} />
