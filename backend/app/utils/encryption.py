@@ -17,11 +17,11 @@ if not _ENCRYPTION_KEY_STR:
 
 # Ensure the key is exactly 32 url-safe base64 bytes for Fernet
 try:
-    _fernet = Fernet(_ENCRYPTION_KEY_STR.encode('utf-8'))
-except ValueError:
-    logger.error("Invalid ENCRYPTION_KEY. Must be 32 url-safe base64-encoded bytes.")
-    # Fallback to prevent crash, though this means the key changed and old data is unreadable
-    _fernet = Fernet(Fernet.generate_key())
+    _fernet = Fernet(_ENCRYPTION_KEY_STR.encode("utf-8"))
+except Exception as e:
+    raise RuntimeError(
+        f"Invalid ENCRYPTION_KEY: {e}"
+    )
 
 def encrypt_token(token: str) -> str:
     """Encrypts a raw string token."""
