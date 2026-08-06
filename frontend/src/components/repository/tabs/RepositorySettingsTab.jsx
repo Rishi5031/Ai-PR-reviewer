@@ -1,54 +1,165 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { aiService } from '../../../services/ai.service';
+import { useToast } from '../../../contexts/ToastContext';
+import { Loader2, Settings2, ShieldCheck, ShieldAlert, SlidersHorizontal } from 'lucide-react';
+
+import { AIModelSelector } from '../settings/AIModelSelector';
+import { StrictnessSelector } from '../settings/StrictnessSelector';
+import { IgnoreFilesInput } from '../settings/IgnoreFilesInput';
+import { CoverageSlider } from '../settings/CoverageSlider';
+import { TokenInput } from '../settings/TokenInput';
+import { SettingsActions } from '../settings/SettingsActions';
 
 export const RepositorySettingsTab = () => {
-  const { repository } = useOutletContext();
+  const { repository, owner, repo } = useOutletContext();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  const settingsOptions = [
-    { name: 'Review Strictness', description: 'Configure how strict the AI should be when reviewing code.', action: 'Moderate' },
-    { name: 'Ignored Files', description: 'List of file patterns to ignore during AI reviews.', action: 'None' },
-    { name: 'Excluded Directories', description: 'Directories to skip for AI processing.', action: 'node_modules, .git' },
-    { name: 'Webhook Settings', description: 'Manage GitHub webhooks for automated reviews.', action: 'Configured' },
-    { name: 'Auto Review', description: 'Automatically trigger reviews on new Pull Requests.', action: 'Enabled' },
-    { name: 'Default Branch', description: 'The primary branch used for baseline comparisons.', action: repository?.default_branch || 'main' }
-  ];
+  // 1. Fetch settings from backend
+  const { data: serverSettings, isLoading, isError, refetch } = useQuery({
+    queryKey: ['repoSettings', owner, repo],
+    queryFn: () => aiService.getRepositorySettings(owner, repo),
+    enabled: !!owner && !!repo,
+  });
+
+  // 2. Local State
+  const [settings, setSettings] = useState(null);
+
+  // Sync local state when server data loads
+  useEffect(() => {
+    if (serverSettings) {
+      setSettings({
+        ai_model: serverSettings.ai_model,
+        review_strictness: serverSettings.review_strictness,
+        ignore_files: serverSettings.ignore_files || [],
+        coverage_threshold: serverSettings.coverage_threshold,
+        max_tokens: serverSettings.max_tokens,
+      });
+    }
+  }, [serverSettings]);
+
+  // 3. Mutation for saving
+  const mutation = useMutation({
+    mutationFn: (newSettings) => aiService.updateRepositorySettings(owner, repo, newSettings),
+    onSuccess: (updatedData) => {
+      queryClient.setQueryData(['repoSettings', owner, repo], updatedData);
+      toast.success("Your repository AI settings have been updated.");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data?.detail || "Failed to save settings.");
+    }
+  });
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <ShieldAlert className="w-12 h-12 text-destructive" />
+        <p className="text-foreground font-medium">Failed to load settings.</p>
+        <button onClick={() => refetch()} className="text-primary hover:underline text-sm font-medium">
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  if (isLoading || !settings) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 space-y-4">
+        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        <p className="text-muted-foreground font-medium">Loading repository settings...</p>
+      </div>
+    );
+  }
+
+  // Helpers to update local state
+  const handleChange = (field, value) => {
+    setSettings((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleReset = () => {
+    if (serverSettings) {
+      setSettings({
+        ai_model: serverSettings.ai_model,
+        review_strictness: serverSettings.review_strictness,
+        ignore_files: serverSettings.ignore_files || [],
+        coverage_threshold: serverSettings.coverage_threshold,
+        max_tokens: serverSettings.max_tokens,
+      });
+    }
+  };
+
+  const handleSave = () => {
+    mutation.mutate(settings);
+  };
+
+  // Check if anything changed
+  const isDirty = JSON.stringify(settings) !== JSON.stringify({
+    ai_model: serverSettings.ai_model,
+    review_strictness: serverSettings.review_strictness,
+    ignore_files: serverSettings.ignore_files || [],
+    coverage_threshold: serverSettings.coverage_threshold,
+    max_tokens: serverSettings.max_tokens,
+  });
 
   return (
-    <div className="space-y-6 animate-in fade-in-50 duration-500">
+    <div className="space-y-6 animate-in fade-in-50 duration-500 pb-4 relative">
       <div>
-        <h2 className="text-xl font-bold tracking-tight text-foreground">Repository Settings</h2>
+        <h2 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <Settings2 className="w-5 h-5 text-primary" />
+          Repository Settings
+        </h2>
         <p className="text-sm text-muted-foreground mt-1">
           Configure CodeGuardian AI behaviors for this repository.
         </p>
       </div>
 
-      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden">
-        <ul className="divide-y divide-border">
-          {settingsOptions.map((setting) => (
-            <li key={setting.name} className="px-6 py-5 flex items-center justify-between hover:bg-muted/30 transition-colors">
-              <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">{setting.name}</span>
-                <span className="text-sm text-muted-foreground mt-1">{setting.description}</span>
-              </div>
-              <div className="ml-4 flex-shrink-0">
-                <button className="text-sm font-medium text-primary hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1.5 rounded-md">
-                  {setting.action}
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div className="bg-card border border-border rounded-lg shadow-sm overflow-hidden mt-6 relative">
+        <div className="px-6 py-5 border-b border-border bg-muted/20">
+          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+            <Settings2 className="w-5 h-5 text-primary" />
+            Configuration
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Manage how the AI interacts with your repository.
+          </p>
+        </div>
+
+        <div className="px-6 flex flex-col divide-y divide-border/50">
+          <AIModelSelector
+            value={settings.ai_model}
+            onChange={(val) => handleChange('ai_model', val)}
+          />
+
+          <StrictnessSelector
+            value={settings.review_strictness}
+            onChange={(val) => handleChange('review_strictness', val)}
+          />
+
+          <IgnoreFilesInput
+            value={settings.ignore_files}
+            onChange={(val) => handleChange('ignore_files', val)}
+          />
+
+          <CoverageSlider
+            value={settings.coverage_threshold}
+            onChange={(val) => handleChange('coverage_threshold', val)}
+          />
+
+          <TokenInput
+            value={settings.max_tokens}
+            onChange={(val) => handleChange('max_tokens', val)}
+          />
+        </div>
       </div>
-      
-      <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-destructive">Danger Zone</h3>
-        <p className="text-sm text-muted-foreground mt-1 mb-4">
-          Irreversible actions for this repository.
-        </p>
-        <button className="bg-destructive hover:bg-destructive/90 text-destructive-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors">
-          Disconnect Repository
-        </button>
-      </div>
+
+      <SettingsActions
+        isDirty={isDirty}
+        isSaving={mutation.isPending}
+        onSave={handleSave}
+        onReset={handleReset}
+      />
     </div>
   );
 };

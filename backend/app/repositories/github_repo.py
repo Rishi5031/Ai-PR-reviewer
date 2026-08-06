@@ -1,6 +1,8 @@
 import uuid
 from typing import Optional
+# pyrefly: ignore [missing-import]
 from sqlalchemy.ext.asyncio import AsyncSession
+# pyrefly: ignore [missing-import]
 from sqlalchemy import select, delete
 
 from app.models.github_integration import GitHubIntegration
@@ -23,8 +25,28 @@ class GitHubRepository:
         encrypted_token: str,
         github_name: Optional[str] = None,
         avatar_url: Optional[str] = None,
+        provider: str = "github",
+        connection_type: str = "PAT"
     ) -> GitHubIntegration:
-        integration = await self.get_by_user_id(user_id)
+        # Check for existing record by user_id
+        result_by_user = await self.db.execute(
+            select(GitHubIntegration).where(GitHubIntegration.user_id == user_id)
+        )
+        existing_by_user = result_by_user.scalar_one_or_none()
+        
+        # Check for existing record by github_id
+        result_by_github = await self.db.execute(
+            select(GitHubIntegration).where(GitHubIntegration.github_id == github_id)
+        )
+        existing_by_github = result_by_github.scalar_one_or_none()
+
+        # If this github account is already connected to another user, delete that old connection 
+        # so the current user can claim it (avoids unique constraint violation).
+        if existing_by_github and (not existing_by_user or existing_by_github.id != existing_by_user.id):
+            await self.db.delete(existing_by_github)
+            await self.db.flush()
+
+        integration = existing_by_user
         
         if integration:
             integration.github_id = github_id
@@ -32,6 +54,8 @@ class GitHubRepository:
             integration.encrypted_token = encrypted_token
             integration.github_name = github_name
             integration.avatar_url = avatar_url
+            integration.provider = provider
+            integration.connection_type = connection_type
             integration.is_connected = True
         else:
             integration = GitHubIntegration(
@@ -41,6 +65,8 @@ class GitHubRepository:
                 encrypted_token=encrypted_token,
                 github_name=github_name,
                 avatar_url=avatar_url,
+                provider=provider,
+                connection_type=connection_type,
                 is_connected=True
             )
             self.db.add(integration)

@@ -10,6 +10,8 @@ class GitHubStatusResponse(BaseModel):
     github_username: Optional[str] = None
     avatar_url: Optional[str] = None
     connected_at: Optional[datetime] = None
+    provider: Optional[str] = None
+    connection_type: Optional[str] = None
 
 class GitHubRepositoryBase(BaseModel):
     id: int

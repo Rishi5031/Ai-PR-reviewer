@@ -15,6 +15,20 @@ export const githubService = {
     await api.delete('/github/disconnect');
   },
 
+  getOAuthLoginUrl: async () => {
+    const response = await api.get('/github/oauth/login');
+    return response.data;
+  },
+
+  getOAuthStatus: async () => {
+    const response = await api.get('/github/oauth/status');
+    return response.data;
+  },
+
+  disconnectOAuth: async () => {
+    await api.delete('/github/oauth/disconnect');
+  },
+
   getRepositories: async () => {
     const response = await api.get('/github/repositories');
     return response.data;

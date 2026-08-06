@@ -80,7 +80,9 @@ class GitHubService:
             is_connected=True,
             github_username=integration.github_username,
             avatar_url=integration.avatar_url,
-            connected_at=integration.connected_at
+            connected_at=integration.connected_at,
+            provider=integration.provider,
+            connection_type=integration.connection_type
         )
 
     async def get_status(self, user_id: uuid.UUID) -> GitHubStatusResponse:
@@ -92,7 +94,9 @@ class GitHubService:
             is_connected=True,
             github_username=integration.github_username,
             avatar_url=integration.avatar_url,
-            connected_at=integration.connected_at
+            connected_at=integration.connected_at,
+            provider=integration.provider,
+            connection_type=integration.connection_type
         )
 
     async def disconnect_account(self, user_id: uuid.UUID) -> bool:

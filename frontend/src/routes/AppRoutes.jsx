@@ -19,6 +19,9 @@ import { PullRequestDetailsPage } from '../pages/PullRequests/PullRequestDetails
 import { AIReviewPage } from '../pages/PullRequests/AIReviewPage';
 import { AIReviewsPage } from '../pages/AIReviews/AIReviewsPage';
 import { AnalyticsPage } from '../pages/Analytics/AnalyticsPage';
+import { GitHubConnectionPage } from '../pages/GitHub/GitHubConnectionPage';
+import { OAuthSuccessPage } from '../pages/GitHub/OAuthSuccessPage';
+import { OAuthErrorPage } from '../pages/GitHub/OAuthErrorPage';
 
 export const AppRoutes = () => {
   return (
@@ -43,6 +46,9 @@ export const AppRoutes = () => {
         <Route path="/repositories/:owner/:repo/pulls/:pullNumber/ai-review" element={<DashboardLayout><AIReviewPage /></DashboardLayout>} />
         <Route path="/ai-reviews" element={<DashboardLayout><AIReviewsPage /></DashboardLayout>} />
         <Route path="/analytics" element={<DashboardLayout><AnalyticsPage /></DashboardLayout>} />
+        <Route path="/github/connect" element={<DashboardLayout><GitHubConnectionPage /></DashboardLayout>} />
+        <Route path="/github/success" element={<DashboardLayout><OAuthSuccessPage /></DashboardLayout>} />
+        <Route path="/github/error" element={<DashboardLayout><OAuthErrorPage /></DashboardLayout>} />
         {/* Add more protected routes here */}
       </Route>
       

@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     
     # OAuth
     GOOGLE_CLIENT_ID: str
+    GITHUB_CLIENT_ID: str
+    GITHUB_CLIENT_SECRET: str
+    GITHUB_CALLBACK_URL: str
     
     # DB
     DATABASE_URL: str

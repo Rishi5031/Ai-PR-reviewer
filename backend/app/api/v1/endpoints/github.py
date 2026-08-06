@@ -18,6 +18,10 @@ from app.schemas.github import (
     GitHubPullRequestCommit
 )
 from app.services.github_service import GitHubService
+# pyrefly: ignore [missing-import]
+from fastapi.responses import RedirectResponse
+from app.services.github_oauth_service import GitHubOAuthService
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -40,6 +44,52 @@ async def get_github_status(
 
 @router.delete("/disconnect", status_code=status.HTTP_204_NO_CONTENT)
 async def disconnect_github(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubService(db)
+    success = await service.disconnect_account(current_user.id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="GitHub account not connected."
+        )
+    return None
+
+
+@router.get("/oauth/login")
+async def github_oauth_login(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    service = GitHubOAuthService(db)
+    auth_url = service.generate_login_url(current_user.id)
+    return {"url": auth_url}
+
+@router.get("/oauth/callback")
+async def github_oauth_callback(
+    code: str,
+    state: str,
+    db: AsyncSession = Depends(get_db)
+):
+    service = GitHubOAuthService(db)
+    await service.exchange_code(code, state)
+    
+    # Redirect directly to repositories page, bypassing the intermediate success screen
+    frontend_url = settings.FRONTEND_URL.split(",")[0]
+    return RedirectResponse(url=f"{frontend_url}/repositories?connected=true")
+
+@router.get("/oauth/status")
+async def get_github_oauth_status(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # This can just reuse the standard get_status from GitHubService
+    service = GitHubService(db)
+    return await service.get_status(current_user.id)
+
+@router.delete("/oauth/disconnect", status_code=status.HTTP_204_NO_CONTENT)
+async def disconnect_github_oauth(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):

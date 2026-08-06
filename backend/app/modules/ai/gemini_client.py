@@ -21,19 +21,20 @@ class GeminiClient:
         # We can use gemini-1.5-pro, gemini-1.5-flash, or the user's custom one
         self.model = settings.GEMINI_MODEL
 
-    async def generate_content(self, prompt: str) -> str:
+    async def generate_content(self, prompt: str, model: str = None) -> str:
         """
         Calls Gemini API with the given prompt.
         """
+        model_to_use = model or self.model
         print("self.client" , self.client)
-        print("self.client" , self.model)
+        print("model_to_use" , model_to_use)
         if not self.client:
             raise ValueError("Gemini API Client is not initialized (missing API key).")
             
         try:
             # Setting generation config for JSON
             response = await self.client.aio.models.generate_content(
-                model=self.model,
+                model=model_to_use,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",

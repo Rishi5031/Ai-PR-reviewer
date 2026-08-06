@@ -111,5 +111,22 @@ export const aiService = {
       baseURL: getRepositoryBaseUrl()
     });
     return response.data;
+  },
+
+  /**
+   * Repository Settings Endpoints
+   */
+  getRepositorySettings: async (owner, repo) => {
+    const response = await api.get(`/${owner}/${repo}/settings`, {
+      baseURL: getRepositoryBaseUrl()
+    });
+    return response.data;
+  },
+
+  updateRepositorySettings: async (owner, repo, settings) => {
+    const response = await api.put(`/${owner}/${repo}/settings`, settings, {
+      baseURL: getRepositoryBaseUrl()
+    });
+    return response.data;
   }
 };
