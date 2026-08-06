@@ -44,6 +44,7 @@ from app.modules.ai_reviews import review_dashboard_controller
 from app.modules.analytics import analytics_controller
 from app.modules.repository_health import repository_health_controller
 from app.modules.repository_settings import repository_settings_controller
+from app.modules.dashboard import dashboard_controller
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(ai_controller.router, prefix="/api/ai", tags=["ai"])
@@ -51,6 +52,7 @@ app.include_router(review_dashboard_controller.router, prefix="/api/ai-reviews",
 app.include_router(analytics_controller.router, prefix="/api/analytics", tags=["analytics"])
 app.include_router(repository_health_controller.router, prefix="/api/repositories", tags=["repository_health"])
 app.include_router(repository_settings_controller.router, prefix="/api/repositories", tags=["repository_settings"])
+app.include_router(dashboard_controller.router, prefix="/api/dashboard", tags=["dashboard"])
 @app.get("/health", tags=["health"])
 def health_check():
     return {"status": "ok"}
