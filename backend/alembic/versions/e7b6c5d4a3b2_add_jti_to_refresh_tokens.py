@@ -6,6 +6,7 @@ Create Date: 2026-08-07 09:30:00.000000
 
 """
 from alembic import op
+# pyrefly: ignore [missing-import]
 import sqlalchemy as sa
 
 

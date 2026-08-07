@@ -1,5 +1,7 @@
+# pyrefly: ignore [missing-import]
 import pytest
 import uuid
+# pyrefly: ignore [missing-import]
 from httpx import AsyncClient
 from app.models.user import User
 
