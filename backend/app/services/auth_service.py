@@ -69,11 +69,15 @@ class AuthService:
         access_token = create_access_token(subject=user.id)
         refresh_token = create_refresh_token(subject=user.id)
         
+        # Decode to get jti
+        payload = verify_token(refresh_token, settings.JWT_REFRESH_SECRET_KEY)
+        jti = payload.get("jti") if payload else None
+        
         # Hash refresh token before storing
         hashed_rt = get_password_hash(refresh_token)
         expires_at = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         
-        await self.token_repo.create(user.id, hashed_rt, expires_at)
+        await self.token_repo.create(user.id, hashed_rt, expires_at, jti=jti)
         
         expires_in = settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         return access_token, refresh_token, expires_in
@@ -85,6 +89,15 @@ class AuthService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid refresh token"
             )
+        
+        jti = payload.get("jti")
+        if jti:
+            db_token = await self.token_repo.get_by_jti(jti)
+            if not db_token:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid or revoked refresh token"
+                )
         
         user_id_str = payload.get("sub")
         if not user_id_str:
@@ -122,11 +135,25 @@ class AuthService:
             expires_in=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         )
 
-    async def logout(self, user_id: uuid.UUID) -> None:
-        # Revoke all tokens for the user to be safe, 
-        # or require the specific refresh token to revoke it.
-        # Here we just revoke all for simplicity and security.
-        await self.token_repo.revoke_all_for_user(user_id)
+    async def logout(self, refresh_token: str, user_id: uuid.UUID) -> None:
+        if not refresh_token:
+            return
+            
+        payload = verify_token(refresh_token, settings.JWT_REFRESH_SECRET_KEY)
+        if not payload or payload.get("type") != "refresh":
+            # Idempotent: Ignore invalid or expired tokens on logout
+            return
+            
+        token_user_id_str = payload.get("sub")
+        if not token_user_id_str or str(token_user_id_str) != str(user_id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to revoke this session"
+            )
+            
+        jti = payload.get("jti")
+        if jti:
+            await self.token_repo.revoke_token_by_jti(jti)
 
     async def google_login(self, token: str) -> TokenSchema:
         try:

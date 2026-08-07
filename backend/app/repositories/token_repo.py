@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from sqlalchemy.ext.asyncio import AsyncSession
+# pyrefly: ignore [missing-import]
 from sqlalchemy import select, update
 from typing import Optional
 import uuid
@@ -11,10 +13,11 @@ class TokenRepository:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create(self, user_id: uuid.UUID, token_hash: str, expires_at: datetime) -> RefreshToken:
+    async def create(self, user_id: uuid.UUID, token_hash: str, expires_at: datetime, jti: Optional[str] = None) -> RefreshToken:
         token = RefreshToken(
             user_id=user_id,
             token_hash=token_hash,
+            jti=jti,
             expires_at=expires_at,
             revoked=False
         )
@@ -34,6 +37,22 @@ class TokenRepository:
     async def revoke_token(self, token_hash: str) -> bool:
         stmt = update(RefreshToken).where(
             RefreshToken.token_hash == token_hash
+        ).values(revoked=True)
+        result = await self.session.execute(stmt)
+        await self.session.commit()
+        return result.rowcount > 0
+
+    async def get_by_jti(self, jti: str) -> Optional[RefreshToken]:
+        stmt = select(RefreshToken).where(
+            RefreshToken.jti == jti,
+            RefreshToken.revoked == False
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def revoke_token_by_jti(self, jti: str) -> bool:
+        stmt = update(RefreshToken).where(
+            RefreshToken.jti == jti
         ).values(revoked=True)
         result = await self.session.execute(stmt)
         await self.session.commit()

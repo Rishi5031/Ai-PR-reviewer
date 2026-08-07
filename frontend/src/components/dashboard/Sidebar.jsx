@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -6,10 +6,13 @@ import {
   GitPullRequest, 
   Bot, 
   BarChart3, 
-  Settings,
-  User 
+  User,
+  LogOut
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useAuth } from '../../contexts/AuthContext';
+import { Dialog, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '../ui/dialog';
+import { Button } from '../ui/button';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -17,11 +20,17 @@ const navigation = [
   { name: 'AI Reviews', href: '/ai-reviews', icon: Bot },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Profile', href: '/profile', icon: User },
-  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export const Sidebar = ({ className }) => {
   const location = useLocation();
+  const { logout } = useAuth();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  const confirmLogout = () => {
+    setShowLogoutDialog(false);
+    logout();
+  };
 
   const isItemActive = (item) => {
     const path = location.pathname;
@@ -82,24 +91,32 @@ export const Sidebar = ({ className }) => {
           })}
         </nav>
       </div>
-      
-      {/* Bottom section if needed */}
-      <div className="border-t border-border p-4">
-        <div className="rounded-lg bg-muted p-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-              <Bot className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">Pro Plan</p>
-              <p className="text-xs text-muted-foreground">1,240/2,000 requests</p>
-            </div>
-          </div>
-          <div className="mt-3 h-1.5 w-full rounded-full bg-border overflow-hidden">
-            <div className="h-full bg-primary" style={{ width: '62%' }} />
-          </div>
-        </div>
+      <div className="mt-auto border-t border-border p-4">
+        <button 
+          onClick={() => setShowLogoutDialog(true)}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-red-500/10 to-rose-500/10 px-4 py-2.5 text-sm font-semibold text-red-600 active:scale-95 dark:text-red-400"
+        >
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          <span>Logout</span>
+        </button>
       </div>
+
+      <Dialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <DialogHeader>
+          <DialogTitle>Confirm Logout</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to log out of your account?
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowLogoutDialog(false)}>
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={confirmLogout}>
+            Logout
+          </Button>
+        </DialogFooter>
+      </Dialog>
     </div>
   );
 };

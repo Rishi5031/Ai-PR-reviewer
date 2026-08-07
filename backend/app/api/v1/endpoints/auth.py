@@ -39,10 +39,11 @@ async def refresh_token(
 
 @router.post("/logout")
 async def logout(
+    request: RefreshTokenRequest,
     current_user: User = Depends(get_current_user),
     auth_service: AuthService = Depends(get_auth_service)
 ) -> Any:
-    await auth_service.logout(current_user.id)
+    await auth_service.logout(request.refresh_token, current_user.id)
     return {"message": "Successfully logged out"}
 
 @router.post("/forgot-password")

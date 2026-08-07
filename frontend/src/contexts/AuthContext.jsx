@@ -26,16 +26,36 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      if (token) await authService.logout();
+      if (token) {
+        const refreshToken = localStorage.getItem('refresh_token');
+        if (refreshToken) {
+          await authService.logout(refreshToken);
+        }
+      }
     } catch (e) {
       // Ignore errors on logout
+      console.error('Logout API failed:', e);
+    } finally {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      setToken(null);
+      queryClient.setQueryData(['user', null], null);
+      queryClient.clear();
+      window.location.href = '/login';
     }
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    setToken(null);
-    queryClient.setQueryData(['user', null], null);
-    queryClient.clear();
   };
+
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'access_token' && !e.newValue) {
+        setToken(null);
+        queryClient.clear();
+        window.location.href = '/login';
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [queryClient]);
 
   useEffect(() => {
     const interceptor = api.interceptors.response.use(

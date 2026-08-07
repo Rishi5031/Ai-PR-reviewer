@@ -21,8 +21,8 @@ export const authService = {
     return response.data;
   },
 
-  async logout() {
-    const response = await api.post('/auth/logout');
+  async logout(refresh_token) {
+    const response = await api.post('/auth/logout', { refresh_token });
     return response.data;
   },
 

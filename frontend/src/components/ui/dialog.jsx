@@ -16,7 +16,7 @@ export const Dialog = ({ open, onOpenChange, children }) => {
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm transition-all duration-100" 
+        className="fixed inset-0 z-50 bg-background/80 transition-all duration-100" 
         onClick={() => onOpenChange(false)}
       />
       {/* Dialog container */}
